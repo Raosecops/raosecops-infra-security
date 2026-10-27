@@ -1,0 +1,43 @@
+name: "Terraform Security & Quality Pipeline"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-and-security:
+    name: "Lint, Validate & Security Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init (Backend-Free)
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Init TFLint Plugins
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -f compact
+
+      - name: Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          framework: terraform
+          output_format: cli
