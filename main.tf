@@ -178,6 +178,7 @@ resource "aws_iam_role_policy" "raosecops_flow_log_policy" {
 resource "aws_flow_log" "raosecops_vpc_flow_log" {
   iam_role_arn    = aws_iam_role.raosecops_flow_log_role.arn
   log_destination = aws_cloudwatch_log_group.raosecops_flow_log_group.arn
+}
 # VPC Core
 resource "aws_vpc" "raosecops_vpc_core" {
   cidr_block           = "10.0.0.0/16"
@@ -358,6 +359,7 @@ resource "aws_iam_role_policy" "raosecops_flow_log_policy" {
 resource "aws_flow_log" "raosecops_vpc_flow_log" {
   iam_role_arn    = aws_iam_role.raosecops_flow_log_role.arn
   log_destination = aws_cloudwatch_log_group.raosecops_flow_log_group.arn
+}
   traffic_type    = "ALL"
   vpc_id          = aws_vpc.raosecops_vpc_core.id
 }
