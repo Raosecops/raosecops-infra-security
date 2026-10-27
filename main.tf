@@ -125,7 +125,7 @@ resource "aws_s3_bucket_acl" "raosecops_flow_log_acl" {
 
 # --- VPC Flow Log ---
 resource "aws_flow_log" "raosecops_vpc_flow_log" {
-def    log_destination      = aws_s3_bucket.raosecops_flow_log_bucket.arn
+  log_destination      = aws_s3_bucket.raosecops_flow_log_bucket.arn
   log_destination_type = "s3"
   traffic_type         = "ALL"
   vpc_id               = aws_vpc.raosecops_vpc_core.id
