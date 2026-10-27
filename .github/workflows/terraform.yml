@@ -1,4 +1,4 @@
-name: "Terraform DevSecOps Pipeline"
+name: "Terraform Security & Quality Pipeline"
 
 on:
   push:
@@ -8,13 +8,9 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
   validate-and-security:
-    name: "TFLint & Checkov Security Scan"
+    name: "Lint, Validate & Security Scan"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -22,6 +18,12 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init (Backend-Free)
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -39,34 +41,3 @@ jobs:
         with:
           framework: terraform
           output_format: cli
-
-  terraform-lifecycle:
-    name: "Terraform Plan & Apply"
-    needs: validate-and-security
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
-        continue-on-error: false
-
-      - name: Terraform Apply
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
